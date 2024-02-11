@@ -46,8 +46,9 @@ public class LoadCSVHandler implements Route {
     @Override
     public Object handle(Request request, Response response) throws Exception {
         // gets the file path from the query parameters
-        String csvFilePath = request.queryParams("loadCSV");
         // initializes a FileReader object for the CSV file
+
+        String csvFilePath = request.queryParams("loadCSV");
         FileReader reader = null;
         try {
              reader = new FileReader(csvFilePath);
