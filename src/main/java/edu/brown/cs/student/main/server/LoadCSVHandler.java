@@ -1,17 +1,15 @@
 package edu.brown.cs.student.main.server;
 
-import edu.brown.cs.student.main.CSVParser;
+import edu.brown.cs.student.main.Parser.CSVParser;
 import edu.brown.cs.student.main.CreatorFromRow.StrListCreatorFromRow;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Quick Summary:
@@ -48,7 +46,7 @@ public class LoadCSVHandler implements Route {
         // gets the file path from the query parameters
         // initializes a FileReader object for the CSV file
 
-        String csvFilePath = request.queryParams("loadCSV");
+        String csvFilePath = request.queryParams("filepath");
         FileReader reader = null;
         try {
              reader = new FileReader(csvFilePath);

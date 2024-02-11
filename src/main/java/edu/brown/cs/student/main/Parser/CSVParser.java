@@ -1,4 +1,4 @@
-package edu.brown.cs.student.main;
+package edu.brown.cs.student.main.Parser;
 
 import edu.brown.cs.student.main.Constants.Errors;
 import edu.brown.cs.student.main.CreatorFromRow.CreatorFromRow;

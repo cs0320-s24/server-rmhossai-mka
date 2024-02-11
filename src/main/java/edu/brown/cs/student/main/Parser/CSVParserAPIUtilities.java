@@ -1,4 +1,4 @@
-package edu.brown.cs.student.main;
+package edu.brown.cs.student.main.Parser;
 
 public class CSVParserAPIUtilities {
 
@@ -7,5 +7,4 @@ public class CSVParserAPIUtilities {
 
     }
 
-    public
 }

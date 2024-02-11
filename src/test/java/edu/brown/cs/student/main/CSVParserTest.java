@@ -6,6 +6,8 @@ import edu.brown.cs.student.main.Exceptions.FactoryFailureException;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+
+import edu.brown.cs.student.main.Parser.CSVParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

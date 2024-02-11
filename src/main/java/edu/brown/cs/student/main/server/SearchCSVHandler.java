@@ -2,7 +2,7 @@ package edu.brown.cs.student.main.server;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import edu.brown.cs.student.main.CSVParser;
+import edu.brown.cs.student.main.Parser.CSVParser;
 import spark.Request;
 import spark.Response;
 import spark.Route;
