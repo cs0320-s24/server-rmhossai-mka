@@ -14,12 +14,11 @@
 
 # Outline
 
-1x) Start the code using CSV Parser
+1) Start the code using CSV Parser
 - Add the CSV Parser Java files to this project
 - Create a new Server.java class for the main method to start the server
 - Import the necessary SparkJava classes like Spark.staticFiles and Spark.exceptionHandler
-- Add code to the main() method to start the server on a specific port (e.g.
-  Spark.port(4567))
+- Add code to the main() method to start the server on a specific port (e.g. Spark.port(4567))
 
 2) Implement User Story 1 to load, view, search CSV files
 - Add API endpoints
