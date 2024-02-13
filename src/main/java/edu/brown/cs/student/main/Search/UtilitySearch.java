@@ -63,7 +63,7 @@ public class UtilitySearch {
     }
 
     for (int row = options[0].ordinal(); row < rows; row++) {
-      if (match(mtrx.get(row).get(col), value) && !this.mat  mchedRows.contains(row)) {
+      if (match(mtrx.get(row).get(col), value) && !this.matchedRows.contains(row)) {
         this.matchedRows.add(row);
         return row;
       }

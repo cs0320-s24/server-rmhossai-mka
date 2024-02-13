@@ -1,5 +1,9 @@
-package edu.brown.cs.student.main.server;
+package edu.brown.cs.student.main.Server;
 
+import edu.brown.cs.student.main.DataSource.CSVDataSource;
+import edu.brown.cs.student.main.DataSource.DatasourceException;
+import edu.brown.cs.student.main.DataSource.GeneralCSVDataSource;
+import edu.brown.cs.student.main.Exceptions.FactoryFailureException;
 import edu.brown.cs.student.main.Parser.CSVParser;
 import edu.brown.cs.student.main.CreatorFromRow.StrListCreatorFromRow;
 import spark.Request;
@@ -22,15 +26,15 @@ import java.util.List;
  */
 
 public class LoadCSVHandler implements Route {
-    CSVParser<List<String>> parser;
+    private CSVDataSource source;
 
     /**
      * Creates a new LoadCSVHandler instance with the given CSVParser.
      *
-     * @param parser - the CSVParser to use for parsing CSV files.
+     * @param source -
      */
-    public LoadCSVHandler(CSVParser parser){
-        this.parser = parser;
+    public LoadCSVHandler(CSVDataSource source){
+        this.source = source;
     }
 
     /**
@@ -46,18 +50,30 @@ public class LoadCSVHandler implements Route {
         // gets the file path from the query parameters
         // initializes a FileReader object for the CSV file
 
-        String csvFilePath = request.queryParams("filepath");
+        // returns the CSVParser object
+
+        String filepath = System.getProperty("user.dir") +
+                "/data/" + request.queryParams("filepath");
+
         FileReader reader = null;
         try {
-             reader = new FileReader(csvFilePath);
+            reader = new FileReader(filepath);
         } catch (FileNotFoundException e) {
-            System.err.println("error");
+            throw new DatasourceException(e.getMessage());
         }
-        // initializes a CSVParser object with the BufferedReader from the FileReader
-        // and a StrListCreatorFromRow object
-        parser = new CSVParser<>(new BufferedReader(reader),
-                new StrListCreatorFromRow());
-        // returns the CSVParser object
-        return parser;
+
+        CSVParser<List<String>> parser =
+                new CSVParser<>(new BufferedReader(reader), new StrListCreatorFromRow());
+
+        List<List<String>> mtrx = null;
+        try {
+            mtrx = parser.parse();
+        } catch (FactoryFailureException e) {
+            throw new DatasourceException(e.getMessage());
+        }
+
+        source.setCurrentMatrix(mtrx);
+
+        return source.getCurrentMatrix();
     }
 }

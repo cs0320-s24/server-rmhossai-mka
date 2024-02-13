@@ -24,9 +24,9 @@ import java.util.List;
 public class CSVParser<T> {
 
   // the reader from which the parser reads
-  public BufferedReader reader;
+  private BufferedReader reader;
   // the strategy used by the parser to create objects from rows.
-  public CreatorFromRow<T> strat;
+  private CreatorFromRow<T> strat;
   // the regular expression used by the parser to create objects from rows.
   static final String regex = ",(?=([^\\\"]*\\\"[^\\\"]*\\\")*(?![^\\\"]*\\\"))";
 
@@ -41,6 +41,11 @@ public class CSVParser<T> {
     this.strat = strat;
   }
 
+  public CSVParser() {
+    this.reader = null;
+    this.strat = null;
+  }
+
   /**
    * Parses the input and creates a list of objects.
    * The parser reads each line from the reader and splits it into a list of strings using the regex.
@@ -52,6 +57,11 @@ public class CSVParser<T> {
    * @throws FactoryFailureException - if the CreatorFromRow strategy fails to create an object.
    */
   public List<T> parse() throws FactoryFailureException {
+    if (this.reader == null || this.strat == null) {
+      System.err.println("Either reader or parse strategy uninitialized. " +
+              "Please use /load to load in a CSV file");
+      return new ArrayList<>();
+    }
     // the size of the current row
     int rowSize;
     // the expected size of each row

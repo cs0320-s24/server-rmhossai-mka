@@ -1,9 +1,11 @@
 package edu.brown.cs.student.main.Parser;
 
-public class CSVParserAPIUtilities {
+public class CSVParserAPIUtilities<T> {
 
 
-    public CSVParserAPIUtilities(){
+    private CSVParser<T> parser;
+
+    public static void parserAdd() {
 
     }
 

@@ -1,33 +1,45 @@
-package edu.brown.cs.student.main.server;
+package edu.brown.cs.student.main.Server;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
+import edu.brown.cs.student.main.DataSource.CSVDataSource;
+import edu.brown.cs.student.main.DataSource.DatasourceException;
 import edu.brown.cs.student.main.Parser.CSVParser;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import javax.xml.crypto.Data;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SearchCSVHandler implements Route {
+public class ViewCSVHandler implements Route  {
 
-    CSVParser<List<String>> parser;
+    private CSVDataSource source;
 
-    public SearchCSVHandler(CSVParser parser){
-        this.parser = parser;
+    public ViewCSVHandler(CSVDataSource source){
+        this.source = source;
     }
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        return null;
+        if (source.getCurrentMatrix() == null) {
+            throw new DatasourceException("No data source initialized");
+        }
+
+        Map<String, Object> resMap = new HashMap<>();
+        resMap.put("csvData", source.getCurrentMatrix());
+        System.out.println(source.getCurrentMatrix());
+
+        return new CSVSuccessResponse(resMap).serialize();
     }
 
     public record CSVSuccessResponse(String response_type,
-                                     List<List<String>> responseList) {
+                                     Map<String, Object> responseMap) {
 
-        public CSVSuccessResponse(List<List<String>> responseList) {
-            this("success", responseList);
+        public CSVSuccessResponse(Map<String, Object> responseMap) {
+            this("success", responseMap);
         }
 
         String serialize() {
@@ -48,7 +60,7 @@ public class SearchCSVHandler implements Route {
     }
 
     public record CSVFailureResponse(String response_type,
-                                     List<List<String>> responseList) {
+                                     Map<String, Object> responseMap) {
 
         String serialize() {
             Moshi moshi = new Moshi.Builder().build();
