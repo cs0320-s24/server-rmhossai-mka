@@ -113,7 +113,8 @@ public class UtilitySearch {
     Integer col;
     try {
       col = Integer.parseInt(str);
-      if (col >= cols || col < 0) throw new ColumnConversionException("Invalid" + " column index");
+      if (col >= cols || col < 0) throw new ColumnConversionException("Invalid" +
+              " column index");
     } catch (NumberFormatException e) {
       if (options[0] != Options.HEADER) {
         throw new ColumnConversionException("Column name inputted when headers were not specified");

@@ -15,7 +15,9 @@ import spark.Response;
 import spark.Route;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SearchCSVHandler implements Route {
@@ -38,7 +40,6 @@ public class SearchCSVHandler implements Route {
         Options[] options = new Options[]{UtilitySearch.Options.NONE,
                 UtilitySearch.Options.NONE, UtilitySearch.Options.NONE};
 
-        UtilitySearch search = new UtilitySearch(mtrx, options);
         String val = request.queryParams("val");
         String colId = request.queryParams("colId");
         String opts = request.queryParams("opts");
@@ -48,16 +49,18 @@ public class SearchCSVHandler implements Route {
         }
 
         if (opts != null) {
-            if (opts.contains("H")) {
+            if (opts.contains("h")) {
                 options[0] = UtilitySearch.Options.HEADER;
             }
-            if (opts.contains("S")) {
+            if (opts.contains("s")) {
                 options[1] = UtilitySearch.Options.CASE_SEN;
             }
-            if (opts.contains("M")) {
+            if (opts.contains("m")) {
                 options[2] = UtilitySearch.Options.MTCH_LOCK;
             }
         }
+
+        UtilitySearch search = new UtilitySearch(mtrx, options);
 
         List<Integer> toPrint = new ArrayList<>();
 
@@ -68,25 +71,34 @@ public class SearchCSVHandler implements Route {
             while ((row = search.search(val, colId)) != -1) toPrint.add(row);
         }
 
+        Map<String, Object> resMap = new HashMap<>();
+
         if (!toPrint.isEmpty()) {
-            return toPrint.stream().map(mtrx::get).collect(Collectors.toList());
+            resMap.put("csvData", toPrint.stream().map(mtrx::get).collect(Collectors.toList()));
+            return new CSVSuccessResponse(resMap).serialize();
         } else {
+            String errorRes;
             if (colId == null) {
+                errorRes =  "Value '" + val + "' not found within column '"
+                         + colId + "'";
                 System.err.println(
-                        "Value '" + val + "' not " + "found" + "within " +
-                                "column '" + colId + "'");
+                        "Value '" + val + "' not found within column '" +
+                                colId + "'");
             } else {
+                errorRes = "Value '" + val + "' not found";
                 System.err.println("Value '" + val + "' not found");
             }
-            return null;
+            resMap.put("csvData", null);
+            return new CSVFailureResponse(errorRes, null).
+                    serialize();
         }
     }
 
     public record CSVSuccessResponse(String response_type,
-                                     List<List<String>> responseList) {
+                                     Map<String, Object> responseMap) {
 
-        public CSVSuccessResponse(List<List<String>> responseList) {
-            this("success", responseList);
+        public CSVSuccessResponse(Map<String, Object> responseMap) {
+            this("success", responseMap);
         }
 
         String serialize() {
@@ -95,7 +107,7 @@ public class SearchCSVHandler implements Route {
                 Moshi moshi = new Moshi.Builder().build();
                 JsonAdapter<CSVSuccessResponse> adapter =
                         moshi.adapter(CSVSuccessResponse.class);
-                return adapter.toJson(this);
+                return adapter.toJson(this).replace("\\\"", "\"");
             } catch (Exception e) {
                 // For debugging purposes, show in the console _why_ this fails
                 // Otherwise we'll just get an error 500 from the API in integration
@@ -107,11 +119,12 @@ public class SearchCSVHandler implements Route {
     }
 
     public record CSVFailureResponse(String response_type,
-                                     List<List<String>> responseList) {
+                                     Map<String, Object> responseMap) {
 
         String serialize() {
             Moshi moshi = new Moshi.Builder().build();
-            return moshi.adapter(CSVFailureResponse.class).toJson(this);
+            return moshi.adapter(CSVFailureResponse.class).toJson(this)
+                    .replace("\\\"", "\"");
         }
     }
 }
