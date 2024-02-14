@@ -14,6 +14,28 @@
 
 # Outline
 
+
+DONE SO FAR:
+
+LoadCSVHandler
+ViewCSVHandler
+SearchCSVHandler
+
+NEED TO DO:
+UtilitySearch cleanup
+Server cleanup
+StrListCreatorFromRow cleanup
+CSVDataSource cleanup
+DatasourceException cleanup
+
+GenCSVDataSourceProxy class
+GeneralCSVDataSource class
+BroadbandHandler class
+ACSDataSource class
+
+Integration and Unit Testing
+
+
 1) Start the code using CSV Parser
 - Add the CSV Parser Java files to this project
 - Create a new Server.java class for the main method to start the server

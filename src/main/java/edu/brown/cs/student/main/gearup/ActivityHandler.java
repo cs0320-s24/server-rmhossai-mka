@@ -1,7 +1,5 @@
-package edu.brown.cs.student.main.activity;
+package edu.brown.cs.student.main.gearup;
 
-import edu.brown.cs.student.main.activity.Activity;
-import edu.brown.cs.student.main.activity.ActivityAPIUtilities;
 import spark.Request;
 import spark.Response;
 import spark.Route;

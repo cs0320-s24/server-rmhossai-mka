@@ -70,7 +70,7 @@ public class LoadCSVHandler implements Route {
         }
         // store the parsed data in the CSVDataSource object
         source.setCurrentMatrix(mtrx);
-        // return the parsed data matrix as the response
+        // return the parsed data string response
         return "Parse was successful!";
     }
 }
