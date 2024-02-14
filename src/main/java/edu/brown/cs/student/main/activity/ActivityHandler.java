@@ -1,4 +1,4 @@
-package edu.brown.cs.student.main.Server;
+package edu.brown.cs.student.main.activity;
 
 import edu.brown.cs.student.main.activity.Activity;
 import edu.brown.cs.student.main.activity.ActivityAPIUtilities;

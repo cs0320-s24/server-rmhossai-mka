@@ -93,8 +93,8 @@ public class ViewCSVHandler implements Route  {
                 // serialize the response object to JSON
                 return adapter.toJson(this);
             } catch (Exception e) {
-                // for debugging purposes, show in the console _why_ this fails.
-                // otherwise, we'll just get an error 500 from the API in integration testing.
+                // for debugging purposes, show in the console _why_ this fails
+                // otherwise, we'll just get an error 500 from the API in integration testing
                 // print stack trace if the serialization fails
                 e.printStackTrace();
                 throw e;

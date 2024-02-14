@@ -20,34 +20,52 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Quick Summary:
+ * Handles HTTP requests to search within CSV data.
+ * Retrieves the current CSV matrix from the data source.
+ * Parses request parameters to determine search options and criteria.
+ * Performs search operations on the CSV data matrix.
+ * Constructs and returns success or failure responses based on search results.
+ */
 public class SearchCSVHandler implements Route {
 
     private CSVDataSource source;
 
+    /**
+     * Constructs a SearchCSVHandler with the given CSVDataSource.
+     *
+     * @param source - the CSV data source.
+     */
     public SearchCSVHandler(CSVDataSource source){
         this.source = source;
     }
 
+    /**
+     * Handles the HTTP request to search within CSV data.
+     *
+     * @param request - the HTTP request.
+     * @param response - the HTTP response.
+     * @return - serialized response containing search results.
+     * @throws Exception - if there is an error handling the request.
+     */
     @Override
     public Object handle(Request request, Response response) throws Exception {
         if (source.getCurrentMatrix() == null) {
             throw new DatasourceException("No data source initialized");
         }
-
+        // retrieve the current CSV matrix
         List<List<String>> mtrx = source.getCurrentMatrix().mtrx();
-
-
-        Options[] options = new Options[]{UtilitySearch.Options.NONE,
-                UtilitySearch.Options.NONE, UtilitySearch.Options.NONE};
-
+        // parse request parameters
+        Options[] options = new Options[]{UtilitySearch.Options.NONE, UtilitySearch.Options.NONE, UtilitySearch.Options.NONE};
         String val = request.queryParams("val");
         String colId = request.queryParams("colId");
         String opts = request.queryParams("opts");
-
+        // validate parameters
         if (val == null) {
             throw new ColumnConversionException(Errors.ARGERR_MAIN.report());
         }
-
+        // set search options
         if (opts != null) {
             if (opts.contains("h")) {
                 options[0] = UtilitySearch.Options.HEADER;
@@ -59,31 +77,26 @@ public class SearchCSVHandler implements Route {
                 options[2] = UtilitySearch.Options.MTCH_LOCK;
             }
         }
-
+        // perform search operations
         UtilitySearch search = new UtilitySearch(mtrx, options);
-
         List<Integer> toPrint = new ArrayList<>();
-
         int row;
         if (colId == null) {
             while ((row = search.search(val)) != -1) toPrint.add(row);
         } else {
             while ((row = search.search(val, colId)) != -1) toPrint.add(row);
         }
-
+        // construct response map
         Map<String, Object> resMap = new HashMap<>();
-
+        // prepare and return response
         if (!toPrint.isEmpty()) {
             resMap.put("csvData", toPrint.stream().map(mtrx::get).collect(Collectors.toList()));
             return new CSVSuccessResponse(resMap).serialize();
         } else {
             String errorRes;
             if (colId == null) {
-                errorRes =  "Value '" + val + "' not found within column '"
-                         + colId + "'";
-                System.err.println(
-                        "Value '" + val + "' not found within column '" +
-                                colId + "'");
+                errorRes = "Value '" + val + "' not found within column '" + colId + "'";
+                System.err.println("Value '" + val + "' not found within column '" + colId + "'");
             } else {
                 errorRes = "Value '" + val + "' not found";
                 System.err.println("Value '" + val + "' not found");
@@ -94,33 +107,59 @@ public class SearchCSVHandler implements Route {
         }
     }
 
-    public record CSVSuccessResponse(String response_type,
-                                     Map<String, Object> responseMap) {
+    /**
+     * Represents a successful response to a CSV search request.
+     *
+     * @param response_type - the type of the response.
+     * @param responseMap - the response map containing the CSV data.
+     */
+    public record CSVSuccessResponse(String response_type, Map<String, Object> responseMap) {
 
+        /**
+         * Constructs a CSVSuccessResponse with the given response.
+         *
+         * @param responseMap - the response map containing CSV search results.
+         */
         public CSVSuccessResponse(Map<String, Object> responseMap) {
             this("success", responseMap);
         }
 
+        /**
+         * Serializes the CSVSuccessResponse to JSON.
+         *
+         * @return - JSON representation of the response.
+         */
         String serialize() {
             try {
-                // Initialize Moshi which takes in this class and returns it as JSON!
+                // initialize Moshi to serialize the response to JSON
                 Moshi moshi = new Moshi.Builder().build();
-                JsonAdapter<CSVSuccessResponse> adapter =
-                        moshi.adapter(CSVSuccessResponse.class);
+                // create a JSON adapter for CSVSuccessResponse
+                JsonAdapter<CSVSuccessResponse> adapter = moshi.adapter(CSVSuccessResponse.class);
+                // serialize the response object to JSON
                 return adapter.toJson(this).replace("\\\"", "\"");
             } catch (Exception e) {
-                // For debugging purposes, show in the console _why_ this fails
-                // Otherwise we'll just get an error 500 from the API in integration
-                // testing.
+                // for debugging purposes, show in the console _why_ this fails
+                // otherwise, we'll just get an error 500 from the API in integration testing
+                // print the stack trace if serialization fails
                 e.printStackTrace();
                 throw e;
             }
         }
     }
 
-    public record CSVFailureResponse(String response_type,
-                                     Map<String, Object> responseMap) {
+    /**
+     * Represents a failure response to a CSV search request.
+     *
+     * @param response_type - the type of the response.
+     * @param responseMap - the response map containing CSV search results.
+     */
+    public record CSVFailureResponse(String response_type, Map<String, Object> responseMap) {
 
+        /**
+         * Serializes the CSVFailureResponse to JSON.
+         *
+         * @return - JSON representation of the response.
+         */
         String serialize() {
             Moshi moshi = new Moshi.Builder().build();
             return moshi.adapter(CSVFailureResponse.class).toJson(this)
