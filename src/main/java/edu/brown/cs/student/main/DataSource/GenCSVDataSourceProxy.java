@@ -1,6 +1,6 @@
 package edu.brown.cs.student.main.DataSource;
 
-import javax.sql.DataSource;
+import edu.brown.cs.student.main.Exceptions.DatasourceException;
 import java.util.List;
 
 public class GenCSVDataSourceProxy implements CSVDataSource {

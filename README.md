@@ -17,6 +17,7 @@
 
 DONE SO FAR:
 
+CSVParser
 LoadCSVHandler
 ViewCSVHandler
 SearchCSVHandler
@@ -26,12 +27,16 @@ UtilitySearch
 CSVDataSource
 GeneralCSVDataSource
 
+ColumnConversionException
+DatasourceException
+FactoryFailureException
+
+
 
 
 NEED TO DO:
 Server cleanup
 StrListCreatorFromRow cleanup
-DatasourceException cleanup
 
 GenCSVDataSourceProxy class
 complete ACSDataSource class

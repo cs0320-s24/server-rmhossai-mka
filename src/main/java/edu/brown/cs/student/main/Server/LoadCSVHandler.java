@@ -1,7 +1,6 @@
 package edu.brown.cs.student.main.Server;
 import edu.brown.cs.student.main.DataSource.CSVDataSource;
-import edu.brown.cs.student.main.DataSource.DatasourceException;
-import edu.brown.cs.student.main.DataSource.GeneralCSVDataSource;
+import edu.brown.cs.student.main.Exceptions.DatasourceException;
 import edu.brown.cs.student.main.Exceptions.FactoryFailureException;
 import edu.brown.cs.student.main.Parser.CSVParser;
 import edu.brown.cs.student.main.CreatorFromRow.StrListCreatorFromRow;

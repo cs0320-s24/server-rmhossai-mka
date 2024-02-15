@@ -4,12 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is an error provided to catch any error that may occur when you create an object from a row.
- * Feel free to expand or supplement or use it for other purposes.
+ * Quick Summary:
+ * Represents an exception related to factory failure, typically when creating an object from a row.
+ * Provides information about the error message and the row involved in the failure.
+ */
+
+/**
+ * Represents an exception related to factory failure, typically when creating an object from a row.
  */
 public class FactoryFailureException extends Exception {
-  final List<String> row;
+  final List<String> row; // the row involved in the factory failure
 
+  /**
+   * Constructs a FactoryFailureException with the specified error message and row.
+   *
+   * @param message - the error message.
+   * @param row - the row involved in the factory failure.
+   */
   public FactoryFailureException(String message, List<String> row) {
     super(message);
     this.row = new ArrayList<>(row);

@@ -3,15 +3,12 @@ package edu.brown.cs.student.main.Server;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import edu.brown.cs.student.main.DataSource.CSVDataSource;
-import edu.brown.cs.student.main.DataSource.DatasourceException;
-import edu.brown.cs.student.main.Parser.CSVParser;
+import edu.brown.cs.student.main.Exceptions.DatasourceException;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import javax.xml.crypto.Data;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
