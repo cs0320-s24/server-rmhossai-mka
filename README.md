@@ -23,14 +23,15 @@ SearchCSVHandler
 BroadbandHandler
 
 UtilitySearch
-CSVDataSource 
+CSVDataSource
+GeneralCSVDataSource
+
 
 
 NEED TO DO:
 Server cleanup
 StrListCreatorFromRow cleanup
 DatasourceException cleanup
-GeneralCSVDataSource cleanup
 
 GenCSVDataSourceProxy class
 complete ACSDataSource class
