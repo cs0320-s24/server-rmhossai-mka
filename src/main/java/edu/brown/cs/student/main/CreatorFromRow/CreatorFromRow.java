@@ -4,11 +4,23 @@ import edu.brown.cs.student.main.Exceptions.FactoryFailureException;
 import java.util.List;
 
 /**
- * This interface defines a method that allows your CSV parser to convert each row into an object of
- * some arbitrary passed type.
- *
- * <p>Your parser class constructor should take a second parameter of this generic interface type.
+ * Quick Summary:
+ * Defines a strategy for creating objects from rows in a CSV file.
+ * Provides a method to create an object of type T from a list of strings representing a row.
+ */
+
+/**
+ * Defines a strategy for creating objects from rows in a CSV file.
+ * @param <T> - the type of object to create from each row.
  */
 public interface CreatorFromRow<T> {
+
+  /**
+   * Creates an object of type T from the specified row.
+   *
+   * @param row - the list of strings representing the row.
+   * @return - the created object.
+   * @throws FactoryFailureException - if an error occurs during object creation.
+   */
   T create(List<String> row) throws FactoryFailureException;
 }
