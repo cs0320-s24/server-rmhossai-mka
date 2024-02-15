@@ -21,9 +21,9 @@ LoadCSVHandler
 ViewCSVHandler
 SearchCSVHandler
 BroadbandHandler
+UtilitySearch
 
 NEED TO DO:
-UtilitySearch cleanup
 Server cleanup
 StrListCreatorFromRow cleanup
 CSVDataSource cleanup
