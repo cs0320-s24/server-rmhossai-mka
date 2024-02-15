@@ -11,16 +11,23 @@ import java.util.List;
 import static spark.Spark.after;
 
 /**
- * Top-level class for this demo. Contains the main() method which starts Spark and runs the various
- * handlers (2).
- *
- * <p>Notice that the OrderHandler takes in a state (menu) that can be shared if we extended the
- * restaurant They need to share state (a menu). This would be a great opportunity to use dependency
- * injection. If we needed more endpoints, more functionality classes, etc. we could make sure they
- * all had the same shared state.
+ * Quick Summary:
+ * Top-level class for the server application. Contains the main() method which starts Spark and runs the various handlers.
+ * The OrderHandler takes in a state (menu) that can be shared if we extended the restaurant.
+ * They need to share state (a menu). This would be a great opportunity to use dependency injection.
+ * If we needed more endpoints, more functionality classes, etc., we could make sure they all had the same shared state.
+ */
+
+/**
+ * Top-level class for the server application. Contains the main() method which starts Spark and runs the various handlers.
  */
 public class Server {
 
+  /**
+   * Main method to start the server application.
+   *
+   * @param args - command-line arguments.
+   */
   public static void main(String[] args) {
     int port = 3232;
     Spark.port(port);
@@ -46,42 +53,24 @@ public class Server {
           response.header("Access-Control-Allow-Origin", "*");
           response.header("Access-Control-Allow-Methods", "*");
         });
-
-    // Sets up data needed for the OrderHandler. You will likely not read from local
-    // JSON in this sprint.
-//    String menuAsJson = SoupAPIUtilities.readInJson("data/menu.json");
-//    List<Soup> menu = new ArrayList<>();
-//    try {
-//      menu = SoupAPIUtilities.deserializeMenu(menuAsJson);
-//    } catch (Exception e) {
-//      // See note in ActivityHandler about this broad Exception catch... Unsatisfactory, but gets
-//      // the job done in the gearup where it is not the focus.
-//      e.printStackTrace();
-//      System.err.println("Errored while deserializing the menu");
-//    }
-
-    // Setting up the handler for the GET /order and /activity endpoints
-
-
+    // setting up data source needed for the handlers
     CSVDataSource source = new GeneralCSVDataSource();
-
     System.out.println(source);
 
-    // define caching parameters
+    // defining caching parameters for the ACS datasource
     int size = 100; // maximum size of the cache
     long expireAfterWriteDuration = 30; // time duration after which entries expire
     TimeUnit timeUnit = TimeUnit.MINUTES; // time unit for the expiration duration
     ACSDatasource acsDatasource = new ACSDatasource(size, expireAfterWriteDuration, timeUnit);
-
+    // setting up Spark handlers for various endpoints
     Spark.get("loadcsv", new LoadCSVHandler(source));
     Spark.get("viewcsv", new ViewCSVHandler(source));
     Spark.get("searchcsv", new SearchCSVHandler(source));
     Spark.get("broadband", new BroadbandHandler(acsDatasource));
-
+    // initialize Spark and await initialization
     Spark.init();
     Spark.awaitInitialization();
-
-    // Notice this link alone leads to a 404... Why is that?
+    // print server started message
     System.out.println("Server started at http://localhost:" + port);
   }
 }

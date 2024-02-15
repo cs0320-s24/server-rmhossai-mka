@@ -22,8 +22,6 @@ Errors
 CreatorFromRow
 StrListCreatorFromRow
 
-
-
 CSVData
 CSVDataSource
 GeneralCSVDataSource
@@ -41,14 +39,11 @@ SearchCSVHandler
 BroadbandHandler
 
 
-
-
 NEED TO DO:
-Server cleanup
-StrListCreatorFromRow cleanup
 
 GenCSVDataSourceProxy class
 complete ACSDataSource class
+Server cleanup
 
 Integration and Unit Testing
 
