@@ -12,12 +12,36 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+/**
+ * Quick Summary:
+ * Handles HTTP requests to retrieve broadband percentage data for a given state and county.
+ * Utilizes an ACS datasource to fetch broadband percentage from ACS API.
+ * Serializes response data to JSON format.
+ */
+
+/**
+ * Handles HTTP requests for broadband percentage data.
+ */
 public class BroadbandHandler implements Route {
     public ACSDatasource acsDatasource;
+
+    /**
+     * Constructs a BroadbandHandler with the specified ACS datasource.
+     *
+     * @param acsDatasource - the ACS datasource to be used for fetching broadband percentage data.
+     */
     public BroadbandHandler(ACSDatasource acsDatasource){
         this.acsDatasource = acsDatasource;
     }
 
+    /**
+     * Handles HTTP requests and returns broadband percentage data as JSON.
+     *
+     * @param request - the HTTP request object.
+     * @param response - the HTTP response object.
+     * @return - JSON representation of broadband percentage data.
+     * @throws Exception - if an error occurs while processing the request.
+     */
     @Override
     public Object handle(Request request, Response response) throws Exception {
         // get state and county parameters
@@ -25,15 +49,21 @@ public class BroadbandHandler implements Route {
         String county = request.queryParams("county");
         // make request to ACS API to get broadband percentage
         double broadbandPercentage = acsDatasource.getBroadbandPercentage(state, county);
-
+        // construct the response map
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("state", state);
         responseMap.put("county", county);
         responseMap.put("broadbandPercentage", broadbandPercentage);
-        // return results and parameters as JSON
+        // serialize response to JSON and return
         return new BroadbandSuccessResponse(responseMap).serialize();
     }
 
+    /**
+     * Represents a successful response to a broadband percentage request.
+     *
+     * @param response_type - the type of the response.
+     * @param responseMap - the response map containing CSV search results.
+     */
     public record BroadbandSuccessResponse(String response_type, Map<String, Object> responseMap) {
 
         /**
