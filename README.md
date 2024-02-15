@@ -27,9 +27,9 @@ Server cleanup
 StrListCreatorFromRow cleanup
 CSVDataSource cleanup
 DatasourceException cleanup
+GeneralCSVDataSource cleanup
 
 GenCSVDataSourceProxy class
-GeneralCSVDataSource class
 BroadbandHandler class
 ACSDataSource class
 

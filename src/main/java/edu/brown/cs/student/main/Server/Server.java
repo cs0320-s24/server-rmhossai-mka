@@ -3,6 +3,7 @@ package edu.brown.cs.student.main.Server;
 import edu.brown.cs.student.main.DataSource.CSVDataSource;
 import edu.brown.cs.student.main.DataSource.GeneralCSVDataSource;
 import edu.brown.cs.student.main.Parser.CSVParser;
+import java.util.concurrent.TimeUnit;
 import spark.Spark;
 
 import java.util.List;
@@ -66,11 +67,16 @@ public class Server {
 
     System.out.println(source);
 
+    // define caching parameters
+    int size = 100; // maximum size of the cache
+    long expireAfterWriteDuration = 30; // time duration after which entries expire
+    TimeUnit timeUnit = TimeUnit.MINUTES; // time unit for the expiration duration
+    ACSDatasource acsDatasource = new ACSDatasource(size, expireAfterWriteDuration, timeUnit);
 
     Spark.get("loadcsv", new LoadCSVHandler(source));
     Spark.get("viewcsv", new ViewCSVHandler(source));
     Spark.get("searchcsv", new SearchCSVHandler(source));
-    Spark.get("broadband", new BroadbandHandler());
+    Spark.get("broadband", new BroadbandHandler(acsDatasource));
 
     Spark.init();
     Spark.awaitInitialization();
