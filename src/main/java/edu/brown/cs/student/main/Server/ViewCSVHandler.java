@@ -43,19 +43,21 @@ public class ViewCSVHandler implements Route  {
      */
     @Override
     public Object handle(Request request, Response response) throws Exception {
+        // create a map to hold CSV data
+        Map<String, Object> responseMap = new HashMap<>();
         // check if CSVDataSource is initialized
         if (source.getCurrentMatrix() == null) {
-            // if not initialized, throw an exception
-            throw new DatasourceException("No data source initialized");
+            // if not initialized, return a failure response map
+            responseMap.put("result", "error");
+            responseMap.put("message", "No data source initialized");
+            return new CSVFailureResponse("error", responseMap).serialize();
         }
-        // create a map to hold CSV data
-        Map<String, Object> resMap = new HashMap<>();
         // put CSV data into the map
-        resMap.put("csvData", source.getCurrentMatrix());
+        responseMap.put("csvData", source.getCurrentMatrix());
         // print CSV data to console
         System.out.println(source.getCurrentMatrix());
         // return serialized response
-        return new CSVSuccessResponse(resMap).serialize();
+        return new CSVSuccessResponse(responseMap).serialize();
     }
 
     /**

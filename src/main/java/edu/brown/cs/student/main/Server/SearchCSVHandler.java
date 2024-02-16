@@ -49,8 +49,14 @@ public class SearchCSVHandler implements Route {
      */
     @Override
     public Object handle(Request request, Response response) throws Exception {
+        // create a map to hold CSV search results
+        Map<String, Object> responseMap = new HashMap<>();
+        // check if CSVDataSource is initialized
         if (source.getCurrentMatrix() == null) {
-            throw new DatasourceException("No data source initialized");
+            // if not initialized, return a failure response map
+            responseMap.put("result", "error");
+            responseMap.put("message", "No data source initialized");
+            return new CSVFailureResponse("error", responseMap).serialize();
         }
         // retrieve the current CSV matrix
         List<List<String>> mtrx = source.getCurrentMatrix().mtrx();
