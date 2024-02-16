@@ -36,13 +36,13 @@ public class ViewCSVHandler implements Route  {
     /**
      * Handles the HTTP request to view CSV data.
      *
-     * @param request - the HTTP request.
-     * @param response - the HTTP response.
+     * @param result - the HTTP request.
+     * @param data - the HTTP response.
      * @return - serialized response containing CSV data.
      * @throws Exception - if there is an error handling the request.
      */
     @Override
-    public Object handle(Request request, Response response) throws Exception {
+    public Object handle(Request result, Response data) throws Exception {
         // create a map to hold CSV data
         Map<String, Object> responseMap = new HashMap<>();
         // check if CSVDataSource is initialized
@@ -63,18 +63,18 @@ public class ViewCSVHandler implements Route  {
     /**
      * Represents a successful response to a CSV request.
      *
-     * @param response_type - the type of the response.
-     * @param responseMap - the response map containing CSV data.
+     * @param result - the type of the response.
+     * @param data - the response map containing CSV data.
      */
-    public record CSVSuccessResponse(String response_type, Map<String, Object> responseMap) {
+    public record CSVSuccessResponse(String result, Map<String, Object> data) {
 
         /**
          * Constructs a CSVSuccessResponse with the given response map.
          *
-         * @param responseMap - the response map containing CSV data.
+         * @param data - the response map containing CSV data.
          */
-        public CSVSuccessResponse(Map<String, Object> responseMap) {
-            this("success", responseMap);
+        public CSVSuccessResponse(Map<String, Object> data) {
+            this("success", data);
         }
 
         /**
@@ -103,10 +103,10 @@ public class ViewCSVHandler implements Route  {
     /**
      * Represents a failure response to a CSV request.
      * 
-     * @param response_type - the type of the response.
-     * @param responseMap - the response map containing CSV data.
+     * @param result - the type of the response.
+     * @param data - the response map containing CSV data.
      */
-    public record CSVFailureResponse(String response_type, Map<String, Object> responseMap) {
+    public record CSVFailureResponse(String result, Map<String, Object> data) {
 
         /**
          * Serializes the CSVFailureResponse to JSON.

@@ -42,13 +42,13 @@ public class SearchCSVHandler implements Route {
     /**
      * Handles the HTTP request to search within CSV data.
      *
-     * @param request - the HTTP request.
-     * @param response - the HTTP response.
+     * @param result - the HTTP request.
+     * @param data - the HTTP response.
      * @return - serialized response containing search results.
      * @throws Exception - if there is an error handling the request.
      */
     @Override
-    public Object handle(Request request, Response response) throws Exception {
+    public Object handle(Request result, Response data) throws Exception {
         // create a map to hold CSV search results
         Map<String, Object> responseMap = new HashMap<>();
         // check if CSVDataSource is initialized
@@ -62,9 +62,9 @@ public class SearchCSVHandler implements Route {
         List<List<String>> mtrx = source.getCurrentMatrix().mtrx();
         // parse request parameters
         Options[] options = new Options[]{UtilitySearch.Options.NONE, UtilitySearch.Options.NONE, UtilitySearch.Options.NONE};
-        String val = request.queryParams("val");
-        String colId = request.queryParams("colId");
-        String opts = request.queryParams("opts");
+        String val = result.queryParams("val");
+        String colId = result.queryParams("colId");
+        String opts = result.queryParams("opts");
         // validate parameters
         if (val == null) {
             throw new ColumnConversionException(Errors.ARGERR_MAIN.report());
@@ -114,18 +114,18 @@ public class SearchCSVHandler implements Route {
     /**
      * Represents a successful response to a CSV search request.
      *
-     * @param response_type - the type of the response.
-     * @param responseMap - the response map containing the CSV data.
+     * @param result - the type of the response.
+     * @param data - the response map containing the CSV data.
      */
-    public record CSVSuccessResponse(String response_type, Map<String, Object> responseMap) {
+    public record CSVSuccessResponse(String result, Map<String, Object> data) {
 
         /**
          * Constructs a CSVSuccessResponse with the given response.
          *
-         * @param responseMap - the response map containing CSV search results.
+         * @param data - the response map containing CSV search results.
          */
-        public CSVSuccessResponse(Map<String, Object> responseMap) {
-            this("success", responseMap);
+        public CSVSuccessResponse(Map<String, Object> data) {
+            this("success", data);
         }
 
         /**
@@ -154,10 +154,10 @@ public class SearchCSVHandler implements Route {
     /**
      * Represents a failure response to a CSV search request.
      *
-     * @param response_type - the type of the response.
-     * @param responseMap - the response map containing CSV search results.
+     * @param result - the type of the response.
+     * @param data - the CSV search results.
      */
-    public record CSVFailureResponse(String response_type, Map<String, Object> responseMap) {
+    public record CSVFailureResponse(String result, Map<String, Object> data) {
 
         /**
          * Serializes the CSVFailureResponse to JSON.
