@@ -85,8 +85,7 @@ public class ViewCSVHandler implements Route  {
                 // initialize Moshi to serialize the response to JSON
                 Moshi moshi = new Moshi.Builder().build();
                 // create a JSON adapter for CSVSuccessResponse
-                JsonAdapter<CSVSuccessResponse> adapter =
-                        moshi.adapter(CSVSuccessResponse.class);
+                JsonAdapter<CSVSuccessResponse> adapter = moshi.adapter(CSVSuccessResponse.class);
                 // serialize the response object to JSON
                 return adapter.toJson(this).replace("\\\"", "\"");
             } catch (Exception e) {
