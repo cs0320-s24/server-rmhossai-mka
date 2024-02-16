@@ -6,10 +6,10 @@ import java.util.List;
 public class GenCSVDataSourceProxy implements CSVDataSource {
 
     CSVDataSource source;
+
     public GenCSVDataSourceProxy () {
 
     }
-
 
     @Override
     public CSVData getCurrentMatrix() {

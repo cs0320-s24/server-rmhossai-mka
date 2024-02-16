@@ -47,7 +47,20 @@ public class BroadbandHandler implements Route {
         // make request to ACS API to get broadband percentage
         double broadbandPercentage = acsDatasource.getBroadbandPercentage(state, county);
         // construct the response map
+
+        /*
+        Observe this code: what does it do?
+
+        It is essentially the equivalent of our CSVResponse class-- it
+        prepares moshi for object to json adaptation.
+
+        Type mapStringObject = Types.newParameterizedType(Map.class, String.class, Object.class);
+        JsonAdapter<Map<String, Object>> adapter = moshi.adapter(mapStringObject);
+        JsonAdapter<WeatherData> weatherDataAdapter = moshi.adapter(WeatherData.class);
+
+         */
         Map<String, Object> responseMap = new HashMap<>();
+
         responseMap.put("state", state);
         responseMap.put("county", county);
         responseMap.put("broadbandPercentage", broadbandPercentage);
