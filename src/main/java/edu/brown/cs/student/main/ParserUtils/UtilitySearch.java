@@ -1,4 +1,4 @@
-package edu.brown.cs.student.main.Search;
+package edu.brown.cs.student.main.ParserUtils;
 
 import edu.brown.cs.student.main.Exceptions.ColumnConversionException;
 import java.util.ArrayList;

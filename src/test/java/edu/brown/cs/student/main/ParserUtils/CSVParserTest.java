@@ -1,4 +1,4 @@
-package edu.brown.cs.student.main;
+package edu.brown.cs.student.main.ParserUtils;
 
 import edu.brown.cs.student.main.Constants.Errors;
 import edu.brown.cs.student.main.CreatorFromRow.StrListCreatorFromRow;
@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.brown.cs.student.main.Parser.CSVParser;
+import edu.brown.cs.student.main.ParserUtils.CSVParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -2,7 +2,7 @@ package edu.brown.cs.student.main.Server;
 import edu.brown.cs.student.main.DataSource.CSVDataSource;
 import edu.brown.cs.student.main.Exceptions.DatasourceException;
 import edu.brown.cs.student.main.Exceptions.FactoryFailureException;
-import edu.brown.cs.student.main.Parser.CSVParser;
+import edu.brown.cs.student.main.ParserUtils.CSVParser;
 import edu.brown.cs.student.main.CreatorFromRow.StrListCreatorFromRow;
 import spark.Request;
 import spark.Response;
