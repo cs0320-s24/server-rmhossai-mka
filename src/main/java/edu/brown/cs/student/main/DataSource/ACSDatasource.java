@@ -3,8 +3,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.JsonAdapter.Factory;
 import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 import edu.brown.cs.student.main.Exceptions.DatasourceException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import okio.Buffer;
 
 import java.io.IOException;
@@ -13,7 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
-
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Quick Summary:
@@ -24,7 +28,7 @@ import java.util.*;
  * that defines how to load cache entries when they are not present.
  */
 public class ACSDatasource {
-  // define cache properties
+    // define cache properties
     public final LoadingCache<String, Double> cache;
 
     public static Map<String, Integer> stateCodes;
@@ -68,44 +72,97 @@ public class ACSDatasource {
         // URL to model after: https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*
         try {
             // TODO 1: Fill out this stubbed URL based on the above
-            URL requestURL = new URL("null",
-                    "null",
-                    "null");
+            // construct the URL for state codes API request
+            URL requestURL = new URL("https://", "api.census.gov", "/data/2010/dec/sf1?get=NAME&for=state:*");
 
-            // This creates a URL connection; basically like opening the browser
-            // and plugging in a URL
+            // establish the URL connection
             HttpURLConnection clientConnection = connect(requestURL);
             Moshi moshi = new Moshi.Builder().build();
 
-            // This creates a JSON adapter
             // TODO 2: Change this adapter so that it returns the correct
             //  return type. You should be looking through the static
             //  "stateCodes" and initializing it via the adapter below.
-            JsonAdapter<Double> adapter =
-                    moshi.adapter(Double.class).nonNull();
-            Double body =
-                    adapter.fromJson(new Buffer().readFrom(clientConnection.getInputStream()));
+          // create a JSON adapter for parsing the response
 
+          Type responseType = Types.newParameterizedType(List.class, List.class, Object.class);
+          JsonAdapter<List<List<Object>>> adapter = moshi.adapter(responseType);
 
-            // End connection
-            clientConnection.disconnect();
+          // read the response from the connection
+          List<List<Object>> response = adapter.fromJson(new Buffer().readFrom(clientConnection.getInputStream()));
 
-            // TODO 3: Figure out what the correct error response should be.
-            if(body == null)
-                throw new DatasourceException("Malformed response from NWS");
-            return body;
+          // end the connection
+          clientConnection.disconnect();
+
+          // initialize the stateCodes map
+          stateCodes = new HashMap<>();
+
+          // check if the response is null or empty
+          if (response == null || response.isEmpty()) {
+            throw new DatasourceException("Malformed response from Census API: No data returned");
+          }
+
+          // iterate over response to populate the stateCodes map
+          for (List<Object> data : response) {
+            String stateName = (String) data.get(0);
+            int stateCode = Integer.parseInt((String) data.get(1)); // assuming the state code is in the second position (index 1)
+            stateCodes.put(stateName, stateCode);
+          }
+
+          // return any arbitrary double value since the method signature requires it
+          return 0.0;
         } catch (IOException e) {
-            // TODO 4: Figure out what the correct error response should be.
-
+          throw new DatasourceException("Error fetching state codes: " + e.getMessage());
         }
-        return 0;
     }
 
     private static double fetchCountyCodes() throws DatasourceException{
-        // TODO 1: You should create a similar method that mirrors the above,
-        //  but for countryCodes instead.
+      // URL to model after: https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*
+      try {
+        // TODO 1: Fill out this stubbed URL based on the above
+        // construct the URL for county codes API request
+        URL requestURL = new URL("https://", "api.census.gov", "/data/2010/dec/sf1?get=NAME&for=county:*");
 
-        return 0;
+        // establish the URL connection
+        HttpURLConnection clientConnection = connect(requestURL);
+        Moshi moshi = new Moshi.Builder().build();
+
+        // TODO 2: Change this adapter so that it returns the correct
+        //  return type. You should be looking through the static
+        //  "stateCodes" and initializing it via the adapter below.
+        // create a JSON adapter for parsing the response
+
+        Type responseType = Types.newParameterizedType(List.class, List.class, Object.class);
+        JsonAdapter<List<List<Object>>> adapter = moshi.adapter(responseType);
+
+        // read the response from the connection
+        List<List<Object>> response = adapter.fromJson(new Buffer().readFrom(clientConnection.getInputStream()));
+
+        // end the connection
+        clientConnection.disconnect();
+
+        // initialize the countyCodes map
+        countyCodes = new HashMap<>();
+
+        // check if the response is null or empty
+        if (response == null || response.isEmpty()) {
+          throw new DatasourceException("Malformed response from Census API: No data returned");
+        }
+
+        // iterate over response to populate the countyCodes map
+        for (List<Object> data : response) {
+          // assuming the county code is in the second position (index 1) and state code is in the third position (index 2)
+          int countyCode = Integer.parseInt((String) data.get(1));
+          int stateCode = Integer.parseInt((String) data.get(2));
+          // initialize inner map if not present
+          countyCodes.putIfAbsent(stateCode, new HashMap<>());
+          // put the county code in the inner map
+          countyCodes.get(stateCode).put((String) data.get(0), countyCode);
+        }
+        // return any arbitrary double value since the method signature requires it
+        return 0.0;
+      } catch (IOException e) {
+        throw new DatasourceException("Error fetching county codes: " + e.getMessage());
+      }
     }
 
     public static double fetchBroadbandPercentage(String state, String county) throws DatasourceException {
