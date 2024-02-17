@@ -25,13 +25,11 @@ import java.util.*;
  */
 public class ACSDatasource {
   // define cache properties
-  public final LoadingCache<String, Double> cache;
+    public final LoadingCache<String, Double> cache;
 
-  public static Map<String, Integer> stateCodes;
+    public static Map<String, Integer> stateCodes;
 
-  public static Map<Integer, Map<String, Integer>> countyCodes;
-
-
+    public static Map<Integer, Map<String, Integer>> countyCodes;
 
     public ACSDatasource(int maxSize, long expireAfterWriteDuration, TimeUnit timeUnit) {
 
@@ -79,6 +77,7 @@ public class ACSDatasource {
             HttpURLConnection clientConnection = connect(requestURL);
             Moshi moshi = new Moshi.Builder().build();
 
+            // This creates a JSON adapter
             // TODO 2: Change this adapter so that it returns the correct
             //  return type. You should be looking through the static
             //  "stateCodes" and initializing it via the adapter below.
@@ -95,8 +94,6 @@ public class ACSDatasource {
             if(body == null)
                 throw new DatasourceException("Malformed response from NWS");
             return body;
-
-            // This creates a JSON adapter
         } catch (IOException e) {
             // TODO 4: Figure out what the correct error response should be.
 
@@ -104,7 +101,7 @@ public class ACSDatasource {
         return 0;
     }
 
-    private static double fetchCountryCodes() throws DatasourceException{
+    private static double fetchCountyCodes() throws DatasourceException{
         // TODO 1: You should create a similar method that mirrors the above,
         //  but for countryCodes instead.
 
@@ -137,6 +134,14 @@ public class ACSDatasource {
         }
     }
 
+    public static Map<String, Integer> getStatesCodes(){
+        return stateCodes;
+    }
+
+    public static Map<Integer, Map<String, Integer>> getCountyCodes(){
+        return countyCodes;
+    }
+
     /**
      * Private helper method; throws IOException so different callers
      * can handle differently if needed.
@@ -153,11 +158,11 @@ public class ACSDatasource {
     }
 
   // method to get broadband percentage from cache or ACS API
-  public double getBroadbandPercentage(String state, String county) throws Exception {
-    String key = state + ":" + county;
-    return cache.get(key);
-    // complete error handling implementation here
-  }
+    public double getBroadbandPercentage(String state, String county) throws Exception {
+        String key = state + ":" + county;
+        return cache.get(key);
+        // complete error handling implementation here
+    }
 }
 
 
