@@ -72,6 +72,6 @@ public class  Server {
     Spark.init();
     Spark.awaitInitialization();
     // print server started message
-    System.out.println("Server started at http://localhost:" + port);
+    System.out.println("Server started at http://localhost:" + Spark.port());
   }
 }

@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Quick Summary:
@@ -58,17 +59,18 @@ public class LoadCSVHandler implements Route {
         // extract file path from request query parameters
         String filepath = System.getProperty("user.dir") + "/data/" + request.queryParams("filepath");
         // check if request or filepath is null, if so, return a failure response
-        if (request == null || filepath == null) {
-            Map<String, Object> responseMap = new HashMap<>();
-            responseMap.put("result", "error");
-            return new CSVFailureResponse("error", responseMap).serialize();
+        Map<String, Object> responseMap = new HashMap<>();
+        if (filepath == null) {
+            return new CSVFailureResponse("error", "Filepath unspecified").serialize();
         }
         // attempt to open the CSV file
         FileReader reader = null;
         try {
             reader = new FileReader(filepath);
         } catch (FileNotFoundException e) {
-            throw new DatasourceException(e.getMessage());
+            responseMap.put("result", "error");
+            return new CSVFailureResponse("error", "Filepath " + filepath +
+                    " not found").serialize();
         }
         // create a CSVParser object with BufferedReader and StrListCreatorFromRow for deserialization
         CSVParser<List<String>> parser = new CSVParser<>(new BufferedReader(reader), new StrListCreatorFromRow());
@@ -77,12 +79,14 @@ public class LoadCSVHandler implements Route {
         try {
             mtrx = parser.parse();
         } catch (FactoryFailureException e) {
-            throw new DatasourceException(e.getMessage());
+            return new CSVFailureResponse("error", "Parse error").serialize();
         }
+
         // store the parsed data in the CSVDataSource object
         source.setCurrentMatrix(mtrx);
         // return the parsed data string response
-        return "Parse was successful!";
+
+        return new CSVSuccessResponse(filepath).serialize();
     }
 
     /**
@@ -91,14 +95,14 @@ public class LoadCSVHandler implements Route {
      * @param result - the type of the response.
      * @param filepath - the filepath containing CSV data.
      */
-    public record CSVSuccessResponse(String result, Map<String, Object> filepath) {
+    public record CSVSuccessResponse(String result, String filepath) {
 
         /**
          * Constructs a CSVSuccessResponse with the given response map.
          *
          * @param filepath - the filepath containing CSV data.
          */
-        public CSVSuccessResponse(Map<String, Object> filepath) {
+        public CSVSuccessResponse(String filepath) {
             this("success", filepath);
         }
 
@@ -129,9 +133,9 @@ public class LoadCSVHandler implements Route {
      * Represents a failure response to a CSV request.
      *
      * @param result - the type of the response.
-     * @param filepath - the filepath containing CSV data.
+     * @param msg - an error message to display.
      */
-    public record CSVFailureResponse(String result, Map<String, Object> filepath) {
+    public record CSVFailureResponse(String result, String msg) {
 
         /**
          * Serializes the CSVFailureResponse to JSON.
