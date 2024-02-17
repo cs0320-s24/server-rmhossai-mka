@@ -70,18 +70,6 @@ public class ACSDataSource {
         });
     }
 
-    /*
-        URL requestURL = new URL("https", "api.weather.gov", "/points/"+lat+","+lon);
-        HttpURLConnection clientConnection = connect(requestURL);
-        Moshi moshi = new Moshi.Builder().build();
-        // Create a URL to connect and set up Moshi
-
-        JsonAdapter<GridResponse> adapter = moshi.adapter(GridResponse.class).nonNull();
-        // Set up an adapter; this will allow you to de/serialize data.
-
-        // From here you’d fetch the state codes and county codes; I
-     */
-
     /**
      * Fetches state codes from the Census API and populates the stateCodes map.
      *
@@ -282,25 +270,3 @@ public class ACSDataSource {
         // complete error handling implementation here
     }
 }
-
-
-/*
-*     private static GridResponse resolveGridCoordinates(double lat, double lon) throws DatasourceException {
-        try {
-            URL requestURL = new URL("https", "api.weather.gov", "/points/"+lat+","+lon);
-            HttpURLConnection clientConnection = connect(requestURL);
-            Moshi moshi = new Moshi.Builder().build();
-
-            // NOTE WELL: THE TYPES GIVEN HERE WOULD VARY ANYTIME THE RESPONSE TYPE VARIES
-            JsonAdapter<GridResponse> adapter = moshi.adapter(GridResponse.class).nonNull();
-            // NOTE: important! pattern for handling the input stream
-            GridResponse body = adapter.fromJson(new Buffer().readFrom(clientConnection.getInputStream()));
-            clientConnection.disconnect();
-            if(body == null || body.properties() == null || body.properties().gridId() == null)
-                throw new DatasourceException("Malformed response from NWS");
-            return body;
-        } catch(IOException e) {
-            throw new DatasourceException(e.getMessage());
-        }
-    }
-* */

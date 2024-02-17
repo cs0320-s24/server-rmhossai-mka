@@ -59,7 +59,6 @@ public class LoadCSVHandler implements Route {
         // extract file path from request query parameters
         String filepath = System.getProperty("user.dir") + "/data/" + request.queryParams("filepath");
         // check if request or filepath is null, if so, return a failure response
-        Map<String, Object> responseMap = new HashMap<>();
         if (filepath == null) {
             return new CSVFailureResponse("error", "Filepath unspecified").serialize();
         }
@@ -68,7 +67,6 @@ public class LoadCSVHandler implements Route {
         try {
             reader = new FileReader(filepath);
         } catch (FileNotFoundException e) {
-            responseMap.put("result", "error");
             return new CSVFailureResponse("error", "Filepath " + filepath +
                     " not found").serialize();
         }
