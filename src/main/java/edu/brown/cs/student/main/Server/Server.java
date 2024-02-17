@@ -1,6 +1,7 @@
 package edu.brown.cs.student.main.Server;
 
-import edu.brown.cs.student.main.DataSource.ACSDatasource;
+import edu.brown.cs.student.main.DataSource.ACSDataSourceProxy;
+import edu.brown.cs.student.main.DataSource.ACSDataSource;
 import edu.brown.cs.student.main.DataSource.CSVDataSource;
 import edu.brown.cs.student.main.DataSource.GeneralCSVDataSource;
 
@@ -20,7 +21,7 @@ import static spark.Spark.after;
 /**
  * Top-level class for the server application. Contains the main() method which starts Spark and runs the various handlers.
  */
-public class Server {
+public class  Server {
 
   /**
    * Main method to start the server application.
@@ -60,12 +61,13 @@ public class Server {
     int size = 100; // maximum size of the cache
     long expireAfterWriteDuration = 30; // time duration after which entries expire
     TimeUnit timeUnit = TimeUnit.MINUTES; // time unit for the expiration duration
-    ACSDatasource acsDatasource = new ACSDatasource(size, expireAfterWriteDuration, timeUnit);
+    ACSDataSourceProxy acsDataSourceProxy = new ACSDataSourceProxy(size,
+            expireAfterWriteDuration, timeUnit);
     // setting up Spark handlers for various endpoints
     Spark.get("loadcsv", new LoadCSVHandler(source));
     Spark.get("viewcsv", new ViewCSVHandler(source));
     Spark.get("searchcsv", new SearchCSVHandler(source));
-    Spark.get("broadband", new BroadbandHandler(acsDatasource));
+    Spark.get("broadband", new BroadbandHandler(acsDataSourceProxy));
     // initialize Spark and await initialization
     Spark.init();
     Spark.awaitInitialization();

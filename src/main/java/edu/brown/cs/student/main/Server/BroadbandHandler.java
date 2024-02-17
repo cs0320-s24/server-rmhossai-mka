@@ -4,7 +4,8 @@ import com.squareup.moshi.Moshi;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.brown.cs.student.main.DataSource.ACSDatasource;
+import edu.brown.cs.student.main.DataSource.ACSDataSource;
+import edu.brown.cs.student.main.DataSource.ACSDataSourceProxy;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -20,14 +21,14 @@ import spark.Route;
  * Handles HTTP requests for broadband percentage data.
  */
 public class BroadbandHandler implements Route {
-    public ACSDatasource acsDatasource;
+    public ACSDataSourceProxy acsDatasource;
 
     /**
      * Constructs a BroadbandHandler with the specified ACS datasource.
      *
      * @param acsDatasource - the ACS datasource to be used for fetching broadband percentage data.
      */
-    public BroadbandHandler(ACSDatasource acsDatasource){
+    public BroadbandHandler(ACSDataSourceProxy acsDatasource){
         this.acsDatasource = acsDatasource;
     }
 
@@ -45,7 +46,8 @@ public class BroadbandHandler implements Route {
         String state = request.queryParams("state");
         String county = request.queryParams("county");
         // make request to ACS API to get broadband percentage
-        double broadbandPercentage = acsDatasource.getBroadbandPercentage(state, county);
+        double broadbandPercentage = ACSDataSource.fetchBroadbandPercentage(state,
+                county);
         // construct the response map
 
         /*
