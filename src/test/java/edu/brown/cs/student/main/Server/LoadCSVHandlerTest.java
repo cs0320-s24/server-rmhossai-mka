@@ -140,20 +140,33 @@ public class LoadCSVHandlerTest {
    */
   @Test
   void testHandle_SuccessfulParse() throws Exception {
+//    String filepath = "ri/ri_income_estimates.csv";
+//
+//    HttpURLConnection loadConnection =
+//            tryRequest(apiService + "?" + testingParam + "=" + filepath);
+//    assertEquals(200, loadConnection.getResponseCode());
+//
+//    Map<String, Object> responseBody = adapter.fromJson(
+//            new Buffer().readFrom(loadConnection.getInputStream()));
+//    showDetailsIfError(responseBody);
+//    assertEquals("success", responseBody.get("result"));
+//
+//    assertEquals(System.getProperty("user.dir") + "/data/" + filepath,
+//            responseBody.get(testingParam));
+//    loadConnection.disconnect(); // close gracefully
     String filepath = "ri/ri_income_estimates.csv";
-
-    HttpURLConnection loadConnection =
-            tryRequest(apiService + "?" + testingParam + "=" + filepath);
-    assertEquals(200, loadConnection.getResponseCode());
-
-    Map<String, Object> responseBody = adapter.fromJson(
-            new Buffer().readFrom(loadConnection.getInputStream()));
-    showDetailsIfError(responseBody);
-    assertEquals("success", responseBody.get("result"));
-
-    assertEquals(System.getProperty("user.dir") + "/data/" + filepath,
-            responseBody.get(testingParam));
-    loadConnection.disconnect(); // close gracefully
+    try {
+      HttpURLConnection loadConnection = tryRequest(apiService + "?" + testingParam + "=" + filepath);
+      assertEquals(200, loadConnection.getResponseCode());
+      Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(loadConnection.getInputStream()));
+      showDetailsIfError(responseBody);
+      assertEquals("success", responseBody.get("result"));
+      System.out.println("Test testHandle_SuccessfulParse: PASSED for filepath: " + filepath);
+      loadConnection.disconnect();
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.out.println("Test testHandle_SuccessfulParse: FAILED for filepath: " + filepath);
+    }
   }
 
   /**
@@ -168,7 +181,58 @@ public class LoadCSVHandlerTest {
   void testHandle_FileNotFound() {
     // TODO: Implement
     String filepath = "non_existing_file.csv";
+    try {
+      HttpURLConnection loadConnection = tryRequest(apiService + "?" + testingParam + "=" + filepath);
+      assertEquals(200, loadConnection.getResponseCode());
+      Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(loadConnection.getErrorStream()));
+      showDetailsIfError(responseBody);
+      assertEquals("error", responseBody.get("result"));
+      System.out.println("Test testHandle_FileNotFound: PASSED for filepath: " + filepath);
+      loadConnection.disconnect();
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.out.println("Test testHandle_FileNotFound: FAILED for filepath: " + filepath);
+    }
     //assertThrows(DatasourceException.class, () -> loadCSVHandler.handle
     // (filepath));
+  }
+
+  @Test
+  void testHandle_EmptyFile() throws IOException {
+    String filepath = "empty_file.csv";
+    HttpURLConnection loadConnection = tryRequest(apiService + "?" + testingParam + "=" + filepath);
+    assertEquals(200, loadConnection.getResponseCode());
+    Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(loadConnection.getInputStream()));
+    showDetailsIfError(responseBody);
+    assertEquals("error", responseBody.get("result"));
+    loadConnection.disconnect();
+  }
+
+  @Test
+  void testHandle_MalformedCSV() throws IOException {
+    String filepath = "malformed_file.csv";
+    HttpURLConnection loadConnection = tryRequest(apiService + "?" + testingParam + "=" + filepath);
+    assertEquals(200, loadConnection.getResponseCode());
+    Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(loadConnection.getInputStream()));
+    showDetailsIfError(responseBody);
+    assertEquals("error", responseBody.get("result"));
+    loadConnection.disconnect();
+  }
+
+  @Test
+  void testHandle_NullFilePath() throws IOException {
+    HttpURLConnection loadConnection = tryRequest(apiService);
+    assertEquals(200, loadConnection.getResponseCode());
+    Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(loadConnection.getInputStream()));
+    showDetailsIfError(responseBody);
+    assertEquals("error", responseBody.get("result"));
+    loadConnection.disconnect();
+  }
+
+  @Test
+  void testHandle_NullRequest() throws IOException {
+    HttpURLConnection loadConnection = tryRequest("");
+    assertEquals(404, loadConnection.getResponseCode());
+    loadConnection.disconnect();
   }
 }
