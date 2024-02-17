@@ -209,8 +209,8 @@ public class LoadCSVHandlerTest {
   }
 
   @Test
-  void testHandle_MalformedCSV() throws IOException {
-    String filepath = "malformed_file.csv";
+  void testHandle_UninitializedCSV() throws IOException {
+    String filepath = "uninitialized_file.csv";
     HttpURLConnection loadConnection = tryRequest(apiService + "?" + testingParam + "=" + filepath);
     assertEquals(200, loadConnection.getResponseCode());
     Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(loadConnection.getInputStream()));

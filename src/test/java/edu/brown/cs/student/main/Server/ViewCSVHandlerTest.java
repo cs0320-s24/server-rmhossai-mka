@@ -2,6 +2,7 @@ package edu.brown.cs.student.main.Server;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
+import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Types;
 import edu.brown.cs.student.main.DataSource.CSVData;
 import edu.brown.cs.student.main.DataSource.CSVDataSource;
@@ -16,6 +17,11 @@ import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.io.InputStream;
+import java.io.BufferedReader;
 import spark.Spark;
 
 /**
@@ -116,4 +122,81 @@ public class ViewCSVHandlerTest {
   }
 
   // TODO 1: Start here
+
+  // Test method for handling successful CSV data retrieval
+  @Test
+  void testHandle_SuccessfulDataRetrieval() throws Exception {
+    // Prepare test data
+    List<List<String>> testData = List.of(
+        List.of("Header1", "Header2"),
+        List.of("Value1", "Value2")
+    );
+    csvDataSource.setCurrentMatrix(testData);
+
+    // Make the request to the handler
+    HttpURLConnection connection = tryRequest(apiService);
+    assertEquals(200, connection.getResponseCode());
+
+    // Deserialize the response
+    Moshi moshi = new Moshi.Builder().build();
+    JsonAdapter<Map<String, Object>> adapter = moshi.adapter(Types.newParameterizedType(Map.class, String.class, Object.class));
+    Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+    showDetailsIfError(responseBody);
+
+    // Assert response
+    assertEquals("success", responseBody.get("result"));
+    assertEquals(testData, responseBody.get("data"));
+
+    // Disconnect the connection
+    connection.disconnect();
+  }
+
+  // Test method for handling uninitialized CSV data source
+  @Test
+  void testHandle_UninitializedDataSource() throws Exception {
+    // Set the data source to null (uninitialized)
+    csvDataSource.setCurrentMatrix(null);
+
+    // Make the request to the handler
+    HttpURLConnection connection = tryRequest(apiService);
+    assertEquals(200, connection.getResponseCode());
+
+    // Deserialize the response
+    Moshi moshi = new Moshi.Builder().build();
+    JsonAdapter<Map<String, Object>> adapter = moshi.adapter(Types.newParameterizedType(Map.class, String.class, Object.class));
+    Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+    showDetailsIfError(responseBody);
+
+    // Assert response
+    assertEquals("error", responseBody.get("result"));
+    assertEquals("No data source initialized", responseBody.get("msg"));
+
+    // Disconnect the connection
+    connection.disconnect();
+  }
+
+  // Test method for handling exceptions during data retrieval
+  @Test
+  void testHandle_ExceptionDuringDataRetrieval() throws Exception {
+    // Set up the data source to throw an exception
+    csvDataSource.setCurrentMatrix(null);
+
+    // Make the request to the handler
+    HttpURLConnection connection = tryRequest(apiService);
+    assertEquals(200, connection.getResponseCode());
+
+    // Deserialize the response
+    Moshi moshi = new Moshi.Builder().build();
+    JsonAdapter<Map<String, Object>> adapter = moshi.adapter(Types.newParameterizedType(Map.class, String.class, Object.class));
+    Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+    showDetailsIfError(responseBody);
+
+    // Assert response
+    assertEquals("error", responseBody.get("result"));
+    // Assert the message, if any, based on the expected exception behavior
+
+    // Disconnect the connection
+    connection.disconnect();
+  }
+
 }
