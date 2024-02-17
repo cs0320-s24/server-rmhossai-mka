@@ -187,6 +187,8 @@ public class ACSDataSource {
      */
     public static double fetchBroadbandPercentage(String state, String county) throws DatasourceException {
       try {
+          fetchStateCodes();
+          fetchCountyCodes(county);
           // get the state code from the state name
           Integer stateCode = stateCodes.get(state);
           // get the county code from the county name and state code

@@ -46,7 +46,8 @@ public class BroadbandHandler implements Route {
         String state = request.queryParams("state");
         String county = request.queryParams("county");
         // make request to ACS API to get broadband percentage
-        double broadbandPercentage = ACSDataSource.fetchBroadbandPercentage(state,
+        double broadbandPercentage =
+                ACSDataSource.fetchBroadbandPercentage(state,
                 county);
         // construct the response map
 
