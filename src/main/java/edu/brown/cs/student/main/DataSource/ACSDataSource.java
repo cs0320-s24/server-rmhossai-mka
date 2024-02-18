@@ -76,7 +76,7 @@ public class ACSDataSource {
      * @return - an arbitrary double value (method signature requirement).
      * @throws DatasourceException - if an error occurs during the data fetching process.
      */
-    private static double fetchStateCodes() throws DatasourceException{
+    static double fetchStateCodes() throws DatasourceException{
         // URL to model after: https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*
           try {
             // construct the URL for state codes API request
@@ -127,7 +127,7 @@ public class ACSDataSource {
      * @return - an arbitrary double value (method signature requirement).
      * @throws DatasourceException - if an error occurs during the data fetching process.
      */
-    private static double fetchCountyCodes(String stateName) throws DatasourceException{
+    static double fetchCountyCodes(String stateName) throws DatasourceException{
       // URL to model after: https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*
       try {
           // construct the URL for county codes API request
