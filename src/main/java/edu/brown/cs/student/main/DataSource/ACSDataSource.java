@@ -228,9 +228,6 @@ public class ACSDataSource {
 
 
           return Double.parseDouble(String.valueOf(body.get(1).get(1))); //
-          // return the
-          // broadband
-          // percentage
       } catch (IOException e){
           throw new DatasourceException(e.getMessage());
         }

@@ -80,6 +80,7 @@ public class BroadbandHandler implements Route {
     /**
      * Represents a successful response to a broadband percentage request.
      *
+     * @param result - The result of the response
      * @param state - the state given by the request.
      * @param county - the county given by the request.
      * @param broadBandPercentage - the broadBandPercentage of the
