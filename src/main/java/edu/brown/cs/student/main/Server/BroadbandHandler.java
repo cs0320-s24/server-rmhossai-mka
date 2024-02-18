@@ -6,9 +6,12 @@ import java.util.Map;
 
 import edu.brown.cs.student.main.DataSource.ACSDataSource;
 import edu.brown.cs.student.main.DataSource.ACSDataSourceProxy;
+import edu.brown.cs.student.main.Exceptions.DatasourceException;
 import spark.Request;
 import spark.Response;
 import spark.Route;
+
+import javax.xml.crypto.Data;
 
 /**
  * Quick Summary:
@@ -42,14 +45,15 @@ public class BroadbandHandler implements Route {
      */
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        // get state and county parameters
-        String state = request.queryParams("state");
-        String county = request.queryParams("county");
-        // make request to ACS API to get broadband percentage
-        double broadbandPercentage =
-                ACSDataSource.fetchBroadbandPercentage(state,
-                county);
-        // construct the response map
+        try {
+            // get state and county parameters
+            String state = request.queryParams("state");
+            String county = request.queryParams("county");
+            // make request to ACS API to get broadband percentage
+            double broadbandPercentage =
+                    ACSDataSource.fetchBroadbandPercentage(state,
+                            county);
+            // construct the response map
 
         /*
         Observe this code: what does it do?
@@ -62,30 +66,42 @@ public class BroadbandHandler implements Route {
         JsonAdapter<WeatherData> weatherDataAdapter = moshi.adapter(WeatherData.class);
 
          */
-        Map<String, Object> responseMap = new HashMap<>();
+            Map<String, Object> responseMap = new HashMap<>();
 
-        responseMap.put("state", state);
-        responseMap.put("county", county);
-        responseMap.put("broadbandPercentage", broadbandPercentage);
-        // serialize response to JSON and return
-        return new BroadbandSuccessResponse(responseMap).serialize();
+            // serialize response to JSON and return
+            return new BroadbandSuccessResponse(state,
+                    county,
+                    broadbandPercentage).serialize();
+        } catch (DatasourceException e) {
+            return new BroadbandFailureResponse("error", e.getMessage()).serialize();
+        }
     }
 
     /**
      * Represents a successful response to a broadband percentage request.
      *
-     * @param response_type - the type of the response.
-     * @param responseMap - the response map containing CSV search results.
+     * @param state - the state given by the request.
+     * @param county - the county given by the request.
+     * @param broadBandPercentage - the broadBandPercentage of the
+     *                            associated county.
      */
-    public record BroadbandSuccessResponse(String response_type, Map<String, Object> responseMap) {
+    public record BroadbandSuccessResponse(String result,
+                                           String state,
+                                           String county,
+                                           Double broadBandPercentage) {
 
         /**
          * Constructs a BroadbandSuccessResponse with the given response.
          *
-         * @param responseMap - the response map containing CSV search results.
+         * @param state - the state given by the request.
+         * @param county - the county given by the request.
+         * @param broadBandPercentage - the broadBandPercentage of the
+         *                            associated county.
          */
-        public BroadbandSuccessResponse(Map<String, Object> responseMap) {
-            this("success", responseMap);
+        public BroadbandSuccessResponse(String state,
+                                        String county,
+                                        Double broadBandPercentage) {
+            this("success", state, county, broadBandPercentage);
         }
 
         /**
@@ -116,9 +132,9 @@ public class BroadbandHandler implements Route {
      * Represents a failure response to a CSV search request.
      *
      * @param response_type - the type of the response.
-     * @param responseMap - the response map containing CSV search results.
+     * @param msg - an error message indicating what went wrong.
      */
-    public record BroadbandFailureResponse(String response_type, Map<String, Object> responseMap) {
+    public record BroadbandFailureResponse(String response_type, String msg) {
 
         /**
          * Serializes the BroadbandFailureResponse to JSON.

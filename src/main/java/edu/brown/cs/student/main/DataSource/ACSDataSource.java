@@ -40,7 +40,7 @@ public class ACSDataSource {
     public final LoadingCache<String, Double> cache;
     // define maps to store state codes and county codes
     public static Map<String, Integer> stateCodes;
-    public static Map<Integer, Map<String, Integer>> countyCodes;
+    public static Map<Integer, Map<String, String>> countyCodes;
 
     /**
      * Constructs an ACSDataSource object with the specified cache parameters.
@@ -78,9 +78,9 @@ public class ACSDataSource {
      */
     private static double fetchStateCodes() throws DatasourceException{
         // URL to model after: https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*
-        try {
+          try {
             // construct the URL for state codes API request
-            URL requestURL = new URL("https://", "api.census.gov", "/data/2010/dec/sf1?get=NAME&for=state:*");
+            URL requestURL = new URL("https", "api.census.gov", "/data/2010/dec/sf1?get=NAME&for=state:*");
 
             // establish the URL connection
             HttpURLConnection clientConnection = connect(requestURL);
@@ -100,15 +100,16 @@ public class ACSDataSource {
             stateCodes = new HashMap<>();
 
             // check if the response is null or empty
-            if (response == null || response.isEmpty()) {
-            throw new DatasourceException("Malformed response from Census API: No data returned");
-            }
+            if (response == null || response.isEmpty())
+                throw new DatasourceException("Malformed response from Census API: No data returned");
 
+            response.remove(0);
             // iterate over the response to populate the stateCodes map
             for (List<Object> data : response) {
-            String stateName = (String) data.get(0);
-            int stateCode = Integer.parseInt((String) data.get(1)); // assuming the state code is in the second position (index 1)
-            stateCodes.put(stateName, stateCode);
+                String stateName = String.valueOf(data.get(0));
+                int stateCode = Integer.parseInt(String.valueOf(data.get(1))); //
+                // assuming the state code is in the second position (index 1)
+                stateCodes.put(stateName, stateCode);
             }
 
             // return any arbitrary double value since the method signature requires it
@@ -121,18 +122,19 @@ public class ACSDataSource {
     /**
      * Fetches county codes from the Census API for a specific state and populates the countyCodes map.
      *
-     * @param stateCode - the code of the state for which county codes are fetched.
+     * @param stateName - the code of the state for which county codes are
+     *                fetched.
      * @return - an arbitrary double value (method signature requirement).
      * @throws DatasourceException - if an error occurs during the data fetching process.
      */
-    private static double fetchCountyCodes(String stateCode) throws DatasourceException{
+    private static double fetchCountyCodes(String stateName) throws DatasourceException{
       // URL to model after: https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*
       try {
           // construct the URL for county codes API request
-          String urlString = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*";
-          if (stateCode != null && !stateCode.isEmpty()) {
-            urlString += "&in=state:" + stateCode;
-          }
+          String urlString = "https://api.census" +
+                  ".gov/data/2010/dec/sf1?get=NAME&for=county:*&in=state:"
+                  + stateCodes.get(stateName);
+
           URL requestURL = new URL(urlString);
 
           // establish the URL connection
@@ -153,22 +155,25 @@ public class ACSDataSource {
           countyCodes = new HashMap<>();
 
           // check if the response is null or empty
-          if (response == null || response.isEmpty()) {
-          throw new DatasourceException("Malformed response from Census API: No data returned");
-          }
+          if (response == null || response.isEmpty())
+              throw new DatasourceException("Malformed response from Census API: No data returned");
 
+          response.remove(0);
           // iterate over response to populate the countyCodes map
           for (List<Object> data : response) {
-          // assuming the county code is in the second position (index 1) and state code is in the third position (index 2)
-          int countyCode = Integer.parseInt((String) data.get(1));
-          int stateCodeFromResponse = Integer.parseInt((String) data.get(2));
-          // check if the county code belongs to the specified state
-          if (stateCode == null || stateCode.isEmpty() || stateCodeFromResponse == Integer.parseInt(stateCode)) {
-            // initialize inner map if not present
-            countyCodes.putIfAbsent(stateCodeFromResponse, new HashMap<>());
-            // put the county code in the inner map
-            countyCodes.get(stateCodeFromResponse).put((String) data.get(0), countyCode);
-          }
+              // assuming the state code is in the second position (index 1)
+              // and county code is in the third position (index 2)
+              String countyCode = String.valueOf(data.get(2));
+              int stateCode =
+                      Integer.parseInt(String.valueOf(data.get(1)));
+              // check if the county code belongs to the specified state
+
+              // initialize inner map if not present
+              countyCodes.putIfAbsent(stateCode, new HashMap<>());
+              // put the county code in the inner map
+              countyCodes.get(stateCode).put(String.valueOf(
+                              data.get(0)),
+                      countyCode);
           }
           // return any arbitrary double value since the method signature requires it
           return 0.0;
@@ -188,26 +193,31 @@ public class ACSDataSource {
     public static double fetchBroadbandPercentage(String state, String county) throws DatasourceException {
       try {
           fetchStateCodes();
-          fetchCountyCodes(county);
+          fetchCountyCodes(state);
           // get the state code from the state name
           Integer stateCode = stateCodes.get(state);
           // get the county code from the county name and state code
-          Integer countyCode = countyCodes.get(stateCode).get(county);
+          String countyCode = countyCodes.get(stateCode).get(county);
 
           // construct the URL for broadband data API request
           URL requestURL = new URL("https", "api.census.gov",
                   "/data/2021/acs/acs1/subject/variables?get=NAME," +
-                          "S2802_C03_022E&for=county:" + state + "&in=state:" + county);
+                          "S2802_C03_022E&for=county:" + countyCode + "&in" +
+                          "=state:" + stateCode);
 
           // establish the URL connection
           HttpURLConnection clientConnection = connect(requestURL);
           Moshi moshi = new Moshi.Builder().build();
 
           // create the JSON adapter for parsing the response
-          JsonAdapter<Double> adapter = moshi.adapter(Double.class).nonNull();
+          JsonAdapter<List<List<Object>>> adapter =
+                  moshi.adapter(Types.newParameterizedType(List.class,
+                          List.class,
+                          Object.class));
 
           // read the response from the connection and parse the broadband percentage
-          Double body = adapter.fromJson(new Buffer().readFrom(clientConnection.getInputStream()));
+          List<List<Object>> body =
+                  adapter.fromJson(new Buffer().readFrom(clientConnection.getInputStream()));
 
           // close the connection
           clientConnection.disconnect();
@@ -215,7 +225,12 @@ public class ACSDataSource {
           // check if the response is null
           if(body == null)
               throw new DatasourceException("Malformed response from NWS");
-          return body; // return the broadband percentage
+
+
+          return Double.parseDouble(String.valueOf(body.get(1).get(1))); //
+          // return the
+          // broadband
+          // percentage
       } catch (IOException e){
           throw new DatasourceException(e.getMessage());
         }
@@ -235,7 +250,7 @@ public class ACSDataSource {
      *
      * @return - the map containing the county codes.
      */
-    public static Map<Integer, Map<String, Integer>> getCountyCodes(){
+    public static Map<Integer, Map<String, String>> getCountyCodes(){
         return countyCodes;
     }
 
