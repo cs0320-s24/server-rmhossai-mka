@@ -10,7 +10,7 @@ public class ACSDataSourceProxy {
 
     public final LoadingCache<String, Double> cache;
 
-    private final ACSDataSource
+    private final ACSDataSource;
 
     public ACSDataSourceProxy(int maxSize, long expireAfterWriteDuration,
                           TimeUnit timeUnit) {

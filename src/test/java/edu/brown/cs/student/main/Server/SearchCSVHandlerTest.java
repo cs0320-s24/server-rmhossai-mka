@@ -10,6 +10,7 @@ import com.squareup.moshi.Types;
 import edu.brown.cs.student.main.DataSource.CSVData;
 import edu.brown.cs.student.main.DataSource.CSVDataSource;
 import edu.brown.cs.student.main.Exceptions.DatasourceException;
+import okio.Buffer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -138,7 +139,7 @@ public class SearchCSVHandlerTest {
       assertEquals(200, connection.getResponseCode());
 
       // Deserialize the response
-      Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+      Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(connection.getInputStream()));
       showDetailsIfError(responseBody);
 
       // Assert response
@@ -165,7 +166,7 @@ public class SearchCSVHandlerTest {
       assertEquals(200, connection.getResponseCode());
 
       // Deserialize the response
-      Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+      Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(connection.getInputStream()));
       showDetailsIfError(responseBody);
 
       // Assert response
@@ -188,7 +189,7 @@ public class SearchCSVHandlerTest {
     assertEquals(500, connection.getResponseCode()); // Assuming 500 for invalid request
 
     // Deserialize the response
-    Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+    Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(connection.getInputStream()));
     showDetailsIfError(responseBody);
 
     // Assert response

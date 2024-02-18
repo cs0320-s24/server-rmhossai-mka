@@ -5,6 +5,7 @@ import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.brown.cs.student.main.DataSource.ACSDataSourceProxy;
 import edu.brown.cs.student.main.Exceptions.DatasourceException;
+import okio.Buffer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,7 @@ public class BroadbandHandlerTest {
 
   @BeforeEach
   public void setup() {
-    acsDataSource = new ACSDataSourceProxy();
+    //acsDataSource = new ACSDataSourceProxy();
     Spark.get("/" + apiService, new BroadbandHandler(acsDataSource));
     Spark.awaitInitialization();
     Moshi moshi = new Moshi.Builder().build();
@@ -76,7 +77,8 @@ public class BroadbandHandlerTest {
     assertEquals(200, connection.getResponseCode());
 
     // Deserialize the response
-    Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+    Map<String, Object> responseBody =
+            adapter.fromJson(new Buffer().readFrom(connection.getInputStream()));
     showDetailsIfError(responseBody);
 
     // Assert response
@@ -92,23 +94,18 @@ public class BroadbandHandlerTest {
   // Test case when state parameter is missing
   @Test
   void testMissingStateParameter() throws IOException {
-    try {
       String county = "Providence County";
 
       HttpURLConnection connection = tryRequest(apiService + "?" + countyParam + "=" + county);
       assertEquals(200, connection.getResponseCode());
 
-      Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+      Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(connection.getInputStream()));
       showDetailsIfError(responseBody);
 
       assertEquals("error", responseBody.get("result"));
       assertEquals("Missing state parameter", responseBody.get("msg"));
 
       connection.disconnect();
-    } catch (DatasourceException e) {
-      e.printStackTrace();
-      fail("Failed to fetch broadband data: " + e.getMessage());
-    }
   }
 
   // Test case when the county parameter is missing
@@ -119,7 +116,7 @@ public class BroadbandHandlerTest {
     assertEquals(400, connection.getResponseCode());
 
     // Deserialize the response
-    Map<String, Object> responseBody = adapter.fromJson(connection.getErrorStream().source());
+    Map<String, Object> responseBody = adapter.fromJson(new Buffer().readFrom(connection.getInputStream()));
     showDetailsIfError(responseBody);
 
     // Assert response
