@@ -1,11 +1,21 @@
 package edu.brown.cs.student.main.Server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.brown.cs.student.main.DataSource.CSVData;
 import edu.brown.cs.student.main.DataSource.CSVDataSource;
 import edu.brown.cs.student.main.Exceptions.DatasourceException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import spark.Spark;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -13,10 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import spark.Spark;
 
 /**
  * Quick Summary:
@@ -116,5 +122,81 @@ public class SearchCSVHandlerTest {
   }
 
   // TODO 1: Start here
+
+  @Test
+  void testSuccessfulSearch() throws IOException, DatasourceException {
+    // Prepare test data
+    List<List<String>> testData = List.of(
+        List.of("Header1", "Header2"),
+        List.of("Value1", "Value2")
+    );
+    try {
+      csvDataSource.setCurrentMatrix(testData);
+
+      // Make the request to the handler
+      HttpURLConnection connection = tryRequest(apiService + "?val=Value1&colId=Header1");
+      assertEquals(200, connection.getResponseCode());
+
+      // Deserialize the response
+      Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+      showDetailsIfError(responseBody);
+
+      // Assert response
+      assertEquals("success", responseBody.get("result"));
+      assertTrue(responseBody.get("data") instanceof List);
+
+      // Disconnect the connection
+      connection.disconnect();
+    } catch (DatasourceException e) {
+      // Handle the exception if needed
+      e.printStackTrace(); // For example, print the stack trace
+      fail("Failed to set current matrix: " + e.getMessage());
+    }
+  }
+
+  @Test
+  void testUninitializedDataSource() throws IOException {
+    try {
+      // Set the data source to null (uninitialized)
+      csvDataSource.setCurrentMatrix(null);
+
+      // Make the request to the handler
+      HttpURLConnection connection = tryRequest(apiService + "?val=Value1&colId=Header1");
+      assertEquals(200, connection.getResponseCode());
+
+      // Deserialize the response
+      Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+      showDetailsIfError(responseBody);
+
+      // Assert response
+      assertEquals("error", responseBody.get("result"));
+      assertEquals("No data source initialized", responseBody.get("msg"));
+
+      // Disconnect the connection
+      connection.disconnect();
+    } catch (DatasourceException e) {
+      // Handle the exception if needed
+      e.printStackTrace(); // For example, print the stack trace
+      fail("Failed to set current matrix: " + e.getMessage());
+    }
+  }
+
+  @Test
+  void testInvalidParameters() throws IOException {
+    // Make the request to the handler with invalid parameters (missing required parameters)
+    HttpURLConnection connection = tryRequest(apiService);
+    assertEquals(500, connection.getResponseCode()); // Assuming 500 for invalid request
+
+    // Deserialize the response
+    Map<String, Object> responseBody = adapter.fromJson(connection.getInputStream().source());
+    showDetailsIfError(responseBody);
+
+    // Assert response
+    assertEquals("error", responseBody.get("type"));
+    assertEquals("Bad Request", responseBody.get("msg"));
+
+    // Disconnect the connection
+    connection.disconnect();
+  }
 
 }
