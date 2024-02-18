@@ -4,48 +4,69 @@
 
 # Project Detail
 
+/**
+* LoadCSVHandler Quick Summary:
+* Awaits requests to load specific CSV files.
+* Retrieves the file path from request query parameters.
+* Attempts to open the specified file.
+* Initializes a CSV parser capable of deserializing CSV data.
+* Processes the file's content, transforming it into a data matrix.
+* Retains the parsed data for further use.
+* Provides the parsed data as the HTTP response.
+  */
+
+/**
+* ViewCSVHandler Quick Summary:
+* Handles HTTP requests to view CSV data.
+* Checks if the CSV data source is initialized and retrieves the current matrix.
+* Constructs a response map containing the CSV data.
+* Serializes the response map to JSON using Moshi.
+* Provides the serialized JSON response as the HTTP response.
+* Contains inner record classes for representing success and failure responses.
+  */
+
+/**
+* SearchCSVHandler Quick Summary:
+* Handles HTTP requests to search within CSV data.
+* Retrieves the current CSV matrix from the data source.
+* Parses request parameters to determine search options and criteria.
+* Performs search operations on the CSV data matrix.
+* Constructs and returns success or failure responses based on search results.
+  */
+
+/**
+* BroadbandHandler Quick Summary:
+* Handles HTTP requests to retrieve broadband percentage data for a given state and county.
+* Utilizes an ACS datasource to fetch broadband percentage from ACS API.
+* Serializes response data to JSON format.
+  */
+
+/**
+* Server Quick Summary:
+* Top-level class for the server application. Contains the main() method which starts Spark and runs the various handlers.
+* The OrderHandler takes in a state (menu) that can be shared if we extended the restaurant.
+* They need to share state (a menu). This would be a great opportunity to use dependency injection.
+* If we needed more endpoints, more functionality classes, etc., we could make sure they all had the same shared state.
+  */
+
 # Design Choices
+
+We chose to create javadocs quick summaries for every single class, so that our README would be easier to read and understand,
+as well as use to implement the code overall.
 
 # Errors/Bugs
 
+We ran into a weird source bug when creating our tests that was eluding us for quite a while. It was related to import
+statements, yet we had all the inputs necessary. 
+
 # Tests
+
+Tests were divided by class, so tests were done considering all necessary edge cases for LoadCSVHandler, ViewCSVHandler,
+SearchCSVHandler, BroadbandHandler, and ACSDataSource tests separately.
 
 # How to
 
 # Outline
-
-
-DONE SO FAR:
-
-Errors
-
-CreatorFromRow
-StrListCreatorFromRow
-
-CSVData
-CSVDataSource
-GeneralCSVDataSource
-
-ColumnConversionException
-DatasourceException
-FactoryFailureException
-
-CSVParser
-UtilitySearch
-
-LoadCSVHandler
-ViewCSVHandler
-SearchCSVHandler
-BroadbandHandler
-Server
-
-
-NEED TO DO:
-
-ACSDataSource proxy
-complete ACSDataSource class
-
-Integration and Unit Testing
 
 
 1) Start the code using CSV Parser
@@ -89,16 +110,3 @@ Integration and Unit Testing
 - Annotate classes and methods with JavaDoc comments
 - Handle errors and exceptions efficiently, with accurate error messages
 - Validate all user-provided inputs
-
-
-/* SearchCSVHandler
-
-*/
-
-/* ViewCSVHandler
-
-*/
-
-/* CSVParser (upgraded)
-
-*/
